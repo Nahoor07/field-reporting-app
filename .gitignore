@@ -1,0 +1,10 @@
+node_modules/
+.DS_Store
+*.log
+.env
+.idea/
+.vscode/
+
+# backend runtime data (sqlite + uploaded files)
+backend/data/
+backend/dist/

@@ -1,0 +1,25 @@
+{
+  "name": "field-reports-backend",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Test backend for Field Reports: resumable chunked uploads, idempotent commit, on-demand fault injection.",
+  "scripts": {
+    "dev": "tsx watch --disable-warning=ExperimentalWarning src/server.ts",
+    "start": "tsx --disable-warning=ExperimentalWarning src/server.ts",
+    "fault": "tsx scripts/fault.ts",
+    "typecheck": "tsc --noEmit",
+    "test": "tsx --disable-warning=ExperimentalWarning --test test/*.test.ts"
+  },
+  "engines": {
+    "node": ">=22.13"
+  },
+  "dependencies": {
+    "fastify": "^5.12.7"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.5",
+    "tsx": "^4.23.15",
+    "typescript": "^6.0.3"
+  }
+}

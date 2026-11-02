@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git credential-osxkeychain *)",
+      "Bash(gh auth *)",
+      "Bash(security find-internet-password *)",
+      "Bash(ssh -T git@github.com -o BatchMode=yes -o ConnectTimeout=5)",
+      "Bash(git remote *)"
+    ]
+  }
+}

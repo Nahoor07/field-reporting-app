@@ -5,7 +5,13 @@
       "Bash(gh auth *)",
       "Bash(security find-internet-password *)",
       "Bash(ssh -T git@github.com -o BatchMode=yes -o ConnectTimeout=5)",
-      "Bash(git remote *)"
+      "Bash(git remote *)",
+      "Bash(grep -v \"^\\\\s*$\")",
+      "Bash(sed -i '' 's/<StatusBar barStyle=\"dark-content\" backgroundColor=\"transparent\" translucent \\\\/>/<StatusBar barStyle=\"dark-content\" \\\\/>/' App.tsx)",
+      "Bash(sed -i '' 's/Theme.AppCompat.DayNight.NoActionBar/Theme.AppCompat.Light.NoActionBar/' android/app/src/main/res/values/styles.xml)",
+      "Bash(xargs sed -i '' 's/type as t }/typography as t }/; s/type as t,/typography as t,/')",
+      "Bash(sed -i '' 's/^export const type = {/export const typography = {/' src/ui/theme.ts)",
+      "Bash(adb devices *)"
     ]
   }
 }

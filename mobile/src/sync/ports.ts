@@ -3,7 +3,7 @@ import type { LocalImage, LocalReport } from '../domain/report';
 /**
  * Everything the upload engine needs from the outside world. The engine imports
  * nothing from React or React Native; production adapters live in src/platform,
- * test doubles in src/sync/__tests__/fakes.
+ * src/api and src/outbox, wired together in src/app/runtime.ts.
  */
 
 export type ReportPatch = Partial<

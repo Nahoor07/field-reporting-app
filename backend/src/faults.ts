@@ -46,7 +46,11 @@ export interface FaultConfig {
 const NO_FAULTS: FaultConfig = { network: { latencyMs: 0, uploadBytesPerSec: null }, rules: [] };
 const TWO_G: NetworkProfile = { latencyMs: 700, uploadBytesPerSec: 6_000 };
 
-export const PRESETS: Record<string, { description: string; config: FaultConfig }> = {
+/**
+ * A preset without `network` keeps the current network profile, so one-shot faults stack on
+ * top of `2g` (e.g. `2g` then `drop-twice` = slow link that also drops twice).
+ */
+export const PRESETS: Record<string, { description: string; config: { network?: NetworkProfile; rules: FaultRule[] } }> = {
   clear: { description: 'No latency, no failures', config: NO_FAULTS },
   '2g': { description: '700ms latency, ~48 kbps uploads', config: { network: TWO_G, rules: [] } },
   flaky: {
@@ -58,31 +62,31 @@ export const PRESETS: Record<string, { description: string; config: FaultConfig 
   },
   'drop-twice': {
     description: 'Next two chunk uploads die mid-body',
-    config: { network: NO_FAULTS.network, rules: [{ route: 'chunk', action: { type: 'drop-mid-body', afterBytes: 8_000 }, times: 2 }] },
+    config: { rules: [{ route: 'chunk', action: { type: 'drop-mid-body', afterBytes: 8_000 }, times: 2 }] },
   },
   'lose-chunk-response': {
     description: 'Next two chunks are stored but the response is lost',
-    config: { network: NO_FAULTS.network, rules: [{ route: 'chunk', action: { type: 'lose-response' }, times: 2 }] },
+    config: { rules: [{ route: 'chunk', action: { type: 'lose-response' }, times: 2 }] },
   },
   'lose-commit-response': {
     description: 'Next report commit is stored but the response is lost',
-    config: { network: NO_FAULTS.network, rules: [{ route: 'commit', action: { type: 'lose-response' }, times: 1 }] },
+    config: { rules: [{ route: 'commit', action: { type: 'lose-response' }, times: 1 }] },
   },
   hang: {
     description: 'Next chunk upload never gets an answer',
-    config: { network: NO_FAULTS.network, rules: [{ route: 'chunk', action: { type: 'hang' }, times: 1 }] },
+    config: { rules: [{ route: 'chunk', action: { type: 'hang' }, times: 1 }] },
   },
   '503': {
     description: 'Next three requests fail with 503 (retryable)',
-    config: { network: NO_FAULTS.network, rules: [{ route: 'any', action: { type: 'error', status: 503 }, times: 3 }] },
+    config: { rules: [{ route: 'any', action: { type: 'error', status: 503 }, times: 3 }] },
   },
   down: {
     description: 'Every request fails with 503 until cleared',
-    config: { network: NO_FAULTS.network, rules: [{ route: 'any', action: { type: 'error', status: 503 } }] },
+    config: { rules: [{ route: 'any', action: { type: 'error', status: 503 } }] },
   },
   refuse: {
     description: 'Every new upload is refused with 422 (not retryable)',
-    config: { network: NO_FAULTS.network, rules: [{ route: 'create', action: { type: 'error', status: 422 } }] },
+    config: { rules: [{ route: 'create', action: { type: 'error', status: 422 } }] },
   },
 };
 

@@ -7,15 +7,21 @@ import { ComposeScreen } from './screens/ComposeScreen';
 import { OutboxScreen } from './screens/OutboxScreen';
 import { ServerScreen } from './screens/ServerScreen';
 import { SettingsScreen } from './screens/SettingsScreen';
-import { colors, HIT, space, tones } from './theme';
+import { colors, radius, shadow, space, tones } from './theme';
 
 type Tab = 'phone' | 'server' | 'settings';
 
 const TABS: { key: Tab; label: string }[] = [
-  { key: 'phone', label: 'On this phone' },
-  { key: 'server', label: 'On the server' },
+  { key: 'phone', label: 'This phone' },
+  { key: 'server', label: 'Server' },
   { key: 'settings', label: 'Settings' },
 ];
+
+const SUBTITLE: Record<Tab, string> = {
+  phone: 'Reports saved on this phone',
+  server: 'What the server has received',
+  settings: 'Connection and reset',
+};
 
 /**
  * Three tabs and one full-screen compose route. Deliberately no navigation library:
@@ -87,6 +93,7 @@ export function AppShell() {
     <View style={[styles.screen, { paddingTop: insets.top }]}>
       <View style={styles.titleBar}>
         <Text style={styles.appTitle}>Field Reports</Text>
+        <Text style={styles.appSubtitle}>{SUBTITLE[tab]}</Text>
       </View>
       <TabBar tab={tab} onChange={setTab} />
       <View style={styles.flex}>
@@ -122,14 +129,14 @@ function TabBar({ tab, onChange }: { tab: Tab; onChange: (tab: Tab) => void }) {
             onPress={() => onChange(key)}
             style={[styles.tab, selected && styles.tabSelected]}
             accessibilityRole="tab"
+            accessibilityLabel={key === 'phone' ? 'On this phone' : key === 'server' ? 'On the server' : 'Settings'}
             accessibilityState={{ selected }}
-            android_ripple={{ color: '#00000010' }}
           >
             <Text style={[styles.tabLabel, selected && styles.tabLabelSelected]} numberOfLines={1}>
               {label}
             </Text>
             {count > 0 && (
-              <View style={[styles.pill, { backgroundColor: attention ? tones.problem.fg : tones.safe.fg }]}>
+              <View style={[styles.pill, { backgroundColor: attention ? tones.problem.fg : colors.primary }]}>
                 <Text style={styles.pillText}>{count}</Text>
               </View>
             )}
@@ -177,27 +184,29 @@ const styles = StyleSheet.create({
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: space.xl, gap: space.md, backgroundColor: colors.paper },
   bootTitle: { fontSize: 18, fontWeight: '700', color: colors.ink, textAlign: 'center' },
   bootDetail: { fontSize: 14, color: colors.inkSoft, textAlign: 'center' },
-  titleBar: { paddingHorizontal: space.lg, paddingTop: space.md, paddingBottom: space.sm },
-  appTitle: { fontSize: 24, fontWeight: '800', color: colors.ink, letterSpacing: -0.3 },
+  titleBar: { paddingHorizontal: space.lg, paddingTop: space.md, paddingBottom: space.md },
+  appTitle: { fontSize: 24, fontWeight: '800', color: colors.ink, letterSpacing: -0.4 },
+  appSubtitle: { fontSize: 13, color: colors.inkSoft, marginTop: 2 },
   tabs: {
     flexDirection: 'row',
-    paddingHorizontal: space.sm,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: colors.line,
+    marginHorizontal: space.lg,
+    marginBottom: space.sm,
+    padding: 4,
+    borderRadius: radius.md,
+    backgroundColor: '#E8ECF3',
   },
   tab: {
     flex: 1,
-    minHeight: HIT,
+    minHeight: 36,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: 6,
-    borderBottomWidth: 3,
-    borderBottomColor: 'transparent',
+    borderRadius: radius.sm,
   },
-  tabSelected: { borderBottomColor: colors.primary },
-  tabLabel: { fontSize: 14, fontWeight: '600', color: colors.inkFaint },
-  tabLabelSelected: { color: colors.ink },
+  tabSelected: { backgroundColor: colors.card, ...shadow.raised },
+  tabLabel: { fontSize: 13, fontWeight: '600', color: colors.inkSoft },
+  tabLabelSelected: { color: colors.ink, fontWeight: '700' },
   pill: { minWidth: 20, height: 20, borderRadius: 10, paddingHorizontal: 6, alignItems: 'center', justifyContent: 'center' },
   pillText: { color: '#fff', fontSize: 12, fontWeight: '700' },
   toast: {
@@ -205,9 +214,10 @@ const styles = StyleSheet.create({
     left: space.lg,
     right: space.lg,
     backgroundColor: colors.ink,
-    borderRadius: 12,
+    borderRadius: radius.md,
+    ...shadow.raised,
     paddingVertical: space.md,
     paddingHorizontal: space.lg,
   },
-  toastText: { color: '#fff', fontSize: 15, fontWeight: '500', textAlign: 'center' },
+  toastText: { color: '#fff', fontSize: 14, fontWeight: '500', textAlign: 'center' },
 });

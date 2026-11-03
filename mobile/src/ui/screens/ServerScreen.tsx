@@ -4,7 +4,7 @@ import type { ServerReport } from '../../api/serverReports';
 import { Button } from '../components/Button';
 import { useOnForeground, useServerReports, useSettings } from '../hooks';
 import { clock, formatBytes } from '../status';
-import { colors, radius, space, tones, typography as t } from '../theme';
+import { colors, radius, shadow, space, tones, typography as t } from '../theme';
 
 /** "On the server": fetched from the server every time. Never built from local state. */
 export function ServerScreen({ topInset }: { topInset: number }) {
@@ -82,7 +82,12 @@ function ServerReportCard({ report, onOpen }: { report: ServerReport; onOpen: (u
   const total = images.reduce((sum, image) => sum + image.size, 0);
   return (
     <View style={styles.card}>
-      <Text style={t.body}>{report.description}</Text>
+      <View style={styles.cardTop}>
+        <Text style={[t.body, styles.description]}>{report.description}</Text>
+        <View style={[styles.done, { backgroundColor: tones.done.bg }]}>
+          <Text style={[styles.doneText, { color: tones.done.fg }]}>✓ Received</Text>
+        </View>
+      </View>
       <View style={styles.thumbs}>
         {images.map(image => (
           <Pressable
@@ -108,15 +113,19 @@ const Separator = () => <View style={{ height: space.md }} />;
 const styles = StyleSheet.create({
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: space.md, padding: space.xl },
   centerText: { textAlign: 'center' },
-  errorTitle: { fontSize: 18, fontWeight: '700', color: colors.ink, textAlign: 'center' },
-  content: { padding: space.lg, paddingBottom: space.xxl },
+  errorTitle: { fontSize: 16, fontWeight: '700', color: colors.ink, textAlign: 'center' },
+  content: { paddingHorizontal: space.lg, paddingTop: space.sm, paddingBottom: space.xxl },
   header: { gap: space.sm, marginBottom: space.md },
   stale: { borderRadius: radius.md, padding: space.md },
   empty: { marginTop: space.xl, gap: space.sm, alignItems: 'center' },
-  card: { backgroundColor: colors.card, borderRadius: radius.lg, borderWidth: 1, borderColor: colors.line, padding: space.md, gap: space.sm },
+  card: { backgroundColor: colors.card, borderRadius: radius.lg, padding: space.lg, gap: space.md, ...shadow.card },
+  cardTop: { flexDirection: 'row', alignItems: 'flex-start', gap: space.sm },
+  description: { flex: 1, fontWeight: '600' },
+  done: { borderRadius: 999, paddingHorizontal: 10, paddingVertical: 3 },
+  doneText: { fontSize: 12, fontWeight: '700' },
   thumbs: { flexDirection: 'row', flexWrap: 'wrap', gap: space.sm },
-  thumb: { width: 64, height: 64, borderRadius: radius.sm, backgroundColor: colors.lineSoft },
+  thumb: { width: 64, height: 64, borderRadius: radius.md, backgroundColor: colors.lineSoft },
   viewer: { flex: 1, backgroundColor: '#000000F0', alignItems: 'center', justifyContent: 'center' },
   full: { width: '100%', height: '85%' },
-  close: { position: 'absolute', right: space.lg, color: '#fff', fontSize: 16, fontWeight: '600', padding: space.sm },
+  close: { position: 'absolute', right: space.lg, color: '#fff', fontSize: 15, fontWeight: '600', padding: space.sm },
 });

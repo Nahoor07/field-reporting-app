@@ -16,6 +16,6 @@ export function ProgressBar({ value, color }: { value: number; color: string }) 
 }
 
 const styles = StyleSheet.create({
-  track: { height: 6, borderRadius: 3, backgroundColor: colors.lineSoft, overflow: 'hidden' },
-  fill: { height: '100%', borderRadius: 3 },
+  track: { height: 8, borderRadius: 4, backgroundColor: colors.lineSoft, overflow: 'hidden' },
+  fill: { height: '100%', borderRadius: 4 },
 });

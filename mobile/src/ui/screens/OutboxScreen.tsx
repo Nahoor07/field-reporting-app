@@ -3,11 +3,12 @@ import { SectionList, StyleSheet, Text, View } from 'react-native';
 import { runtime } from '../../app/runtime';
 import type { LocalReport } from '../../domain/report';
 import { Button } from '../components/Button';
+import { Icon } from '../components/Icon';
 import { ReportCard } from '../components/ReportCard';
 import { StatusBanner } from '../components/StatusBanner';
 import { useDraft, useEngineActivity, useNow, useOffline, useOutbox } from '../hooks';
 import { summarize } from '../status';
-import { colors, space, typography as t } from '../theme';
+import { colors, radius, shadow, space, typography as t } from '../theme';
 
 interface Props {
   onCompose: () => void;
@@ -69,8 +70,11 @@ export function OutboxScreen({ onCompose, bottomInset }: Props) {
         stickySectionHeadersEnabled={false}
         ListEmptyComponent={
           <View style={styles.empty}>
+            <View style={styles.emptyIcon}>
+              <Icon name="camera" color={colors.primary} size={30} />
+            </View>
             <Text style={styles.emptyTitle}>No reports on this phone</Text>
-            <Text style={t.small}>
+            <Text style={[t.small, styles.emptyText]}>
               Write a short description and add 1–5 photos. It works with no signal: the report waits here and sends
               itself when it can.
             </Text>
@@ -78,7 +82,11 @@ export function OutboxScreen({ onCompose, bottomInset }: Props) {
         }
       />
       <View style={[styles.footer, { paddingBottom: space.md + bottomInset }]}>
-        <Button label={hasDraft ? `Continue draft${draftCount ? ` (${draftCount} photos)` : ''}` : 'New report'} onPress={onCompose} />
+        <Button
+          label={hasDraft ? `Continue draft${draftCount ? ` (${draftCount} photos)` : ''}` : 'New report'}
+          icon={hasDraft ? undefined : <Icon name="plus" color={colors.onPrimary} size={20} />}
+          onPress={onCompose}
+        />
       </View>
     </View>
   );
@@ -88,7 +96,7 @@ const Separator = () => <View style={{ height: space.md }} />;
 
 const styles = StyleSheet.create({
   flex: { flex: 1 },
-  content: { padding: space.lg, paddingBottom: space.xxl },
+  content: { paddingHorizontal: space.lg, paddingTop: space.sm, paddingBottom: space.xxl },
   header: { marginBottom: space.sm },
   sectionHeader: {
     flexDirection: 'row',
@@ -98,13 +106,24 @@ const styles = StyleSheet.create({
     marginBottom: space.sm,
     minHeight: 36,
   },
-  empty: { marginTop: space.xl, gap: space.sm, paddingHorizontal: space.sm },
-  emptyTitle: { fontSize: 18, fontWeight: '700', color: colors.ink },
+  empty: { marginTop: space.xxl, gap: space.sm, paddingHorizontal: space.lg, alignItems: 'center' },
+  emptyIcon: {
+    width: 68,
+    height: 68,
+    borderRadius: 34,
+    backgroundColor: colors.primarySoft,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: space.sm,
+  },
+  emptyTitle: { fontSize: 17, fontWeight: '700', color: colors.ink, letterSpacing: -0.2 },
+  emptyText: { textAlign: 'center' },
   footer: {
     paddingHorizontal: space.lg,
     paddingTop: space.md,
-    backgroundColor: colors.paper,
-    borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: colors.line,
+    backgroundColor: colors.card,
+    borderTopLeftRadius: radius.lg,
+    borderTopRightRadius: radius.lg,
+    ...shadow.bar,
   },
 });

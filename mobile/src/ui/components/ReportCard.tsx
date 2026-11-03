@@ -2,7 +2,7 @@ import React, { memo, useState } from 'react';
 import { Image, StyleSheet, Text, View } from 'react-native';
 import type { LocalReport } from '../../domain/report';
 import { reportStatus } from '../status';
-import { colors, radius, space, tones, typography as t } from '../theme';
+import { colors, radius, shadow, space, tones, typography as t } from '../theme';
 import { Button } from './Button';
 import { ProgressBar } from './ProgressBar';
 
@@ -33,7 +33,7 @@ export const ReportCard = memo(function ReportCardView({ report, offline, now, o
           </View>
         ) : null}
         <View style={[styles.body, hasLocalPhotos && styles.bodyAfterThumbs]}>
-          <Text style={t.body} numberOfLines={2}>
+          <Text style={[t.body, styles.description]} numberOfLines={2}>
             {report.description}
           </Text>
           <Text style={t.tiny}>
@@ -44,7 +44,10 @@ export const ReportCard = memo(function ReportCardView({ report, offline, now, o
       </View>
 
       <View style={[styles.status, { backgroundColor: tone.bg }]}>
-        <Text style={[styles.statusTitle, { color: tone.fg }]}>{status.title}</Text>
+        <View style={styles.statusRow}>
+          <View style={[styles.dot, { backgroundColor: tone.fg }]} />
+          <Text style={[styles.statusTitle, { color: tone.fg }]}>{status.title}</Text>
+        </View>
         <Text style={styles.statusDetail}>{status.detail}</Text>
         {status.progress !== undefined && <ProgressBar value={status.progress} color={tone.fg} />}
       </View>
@@ -74,27 +77,31 @@ const styles = StyleSheet.create({
   card: {
     backgroundColor: colors.card,
     borderRadius: radius.lg,
-    borderWidth: 1,
-    borderColor: colors.line,
+    borderWidth: 1.5,
+    borderColor: 'transparent',
     padding: space.md,
     gap: space.md,
+    ...shadow.card,
   },
   top: { flexDirection: 'row', gap: space.md, alignItems: 'center' },
   thumbs: { flexDirection: 'row' },
   thumb: {
-    width: 48,
-    height: 48,
+    width: 44,
+    height: 44,
     borderRadius: radius.sm,
-    marginRight: -16,
-    borderWidth: 2,
+    marginRight: -18,
+    borderWidth: 2.5,
     borderColor: colors.card,
     backgroundColor: colors.lineSoft,
   },
   body: { flex: 1, gap: 2 },
-  bodyAfterThumbs: { marginLeft: 16 },
-  status: { borderRadius: radius.md, padding: space.md, gap: 6 },
-  statusTitle: { fontSize: 15, fontWeight: '700' },
-  statusDetail: { fontSize: 14, color: colors.inkSoft, lineHeight: 19 },
+  description: { fontWeight: '600' },
+  bodyAfterThumbs: { marginLeft: 18 },
+  status: { borderRadius: radius.md, paddingVertical: space.sm + 2, paddingHorizontal: space.md, gap: 5 },
+  statusRow: { flexDirection: 'row', alignItems: 'center', gap: space.sm },
+  dot: { width: 8, height: 8, borderRadius: 4 },
+  statusTitle: { fontSize: 14, fontWeight: '700' },
+  statusDetail: { fontSize: 13, color: colors.inkSoft, lineHeight: 18 },
   actions: { flexDirection: 'row', gap: space.sm },
   confirm: { gap: space.sm },
   flex: { flex: 1 },

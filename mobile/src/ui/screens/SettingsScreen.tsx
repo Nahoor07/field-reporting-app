@@ -4,7 +4,7 @@ import { runtime } from '../../app/runtime';
 import { Button } from '../components/Button';
 import { useDraft, useOutbox, useSettings } from '../hooks';
 import { plural } from '../status';
-import { colors, radius, space, tones, typography as t } from '../theme';
+import { colors, radius, shadow, space, tones, typography as t } from '../theme';
 
 export function SettingsScreen({ onResetDone }: { onResetDone: () => void }) {
   const { serverUrl } = useSettings();
@@ -84,20 +84,19 @@ export function SettingsScreen({ onResetDone }: { onResetDone: () => void }) {
 }
 
 const styles = StyleSheet.create({
-  content: { padding: space.lg, gap: space.sm, paddingBottom: space.xxl },
+  content: { paddingHorizontal: space.lg, paddingTop: space.md, gap: space.sm, paddingBottom: space.xxl },
   gap: { marginTop: space.lg },
-  card: { backgroundColor: colors.card, borderRadius: radius.lg, borderWidth: 1, borderColor: colors.line, padding: space.md, gap: space.md },
+  card: { backgroundColor: colors.card, borderRadius: radius.lg, padding: space.lg, gap: space.md, ...shadow.card },
   input: {
-    borderWidth: 1,
-    borderColor: colors.line,
+    backgroundColor: colors.field,
     borderRadius: radius.md,
     paddingHorizontal: space.md,
-    minHeight: 48,
-    fontSize: 16,
+    minHeight: 46,
+    fontSize: 15,
     color: colors.ink,
   },
   confirm: { borderRadius: radius.md, padding: space.md, gap: space.sm },
-  confirmTitle: { fontSize: 15, fontWeight: '700' },
+  confirmTitle: { fontSize: 14, fontWeight: '700' },
   strong: { fontWeight: '700', color: colors.ink },
   row: { flexDirection: 'row', gap: space.sm, marginTop: space.sm },
   flex: { flex: 1 },

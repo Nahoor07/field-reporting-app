@@ -1,6 +1,6 @@
 import React from 'react';
-import { ActivityIndicator, Pressable, StyleSheet, Text, type StyleProp, type ViewStyle } from 'react-native';
-import { colors, HIT, radius, space } from '../theme';
+import { ActivityIndicator, Pressable, StyleSheet, Text, View, type StyleProp, type ViewStyle } from 'react-native';
+import { colors, radius, space } from '../theme';
 
 type Variant = 'primary' | 'secondary' | 'danger' | 'ghost';
 
@@ -11,11 +11,12 @@ interface Props {
   disabled?: boolean;
   busy?: boolean;
   compact?: boolean;
+  icon?: React.ReactNode;
   style?: StyleProp<ViewStyle>;
   accessibilityHint?: string;
 }
 
-export function Button({ label, onPress, variant = 'primary', disabled, busy, compact, style, accessibilityHint }: Props) {
+export function Button({ label, onPress, variant = 'primary', disabled, busy, compact, icon, style, accessibilityHint }: Props) {
   const v = VARIANTS[variant];
   const inactive = disabled || busy;
   return (
@@ -31,34 +32,45 @@ export function Button({ label, onPress, variant = 'primary', disabled, busy, co
       style={({ pressed }) => [
         styles.base,
         compact && styles.compact,
-        { backgroundColor: pressed && v.pressed ? v.pressed : v.bg, borderColor: v.border },
-        inactive && styles.disabled,
+        { backgroundColor: pressed && v.pressed ? v.pressed : v.bg },
+        inactive && (variant === 'primary' ? styles.primaryDisabled : styles.disabled),
         style,
       ]}
     >
-      {busy ? <ActivityIndicator color={v.fg} /> : <Text style={[styles.label, { color: v.fg }]}>{label}</Text>}
+      {busy ? (
+        <ActivityIndicator color={v.fg} />
+      ) : (
+        <View style={styles.inner}>
+          {icon}
+          <Text style={[styles.label, compact && styles.labelCompact, { color: inactive && variant === 'primary' ? colors.inkFaint : v.fg }]} numberOfLines={1}>
+            {label}
+          </Text>
+        </View>
+      )}
     </Pressable>
   );
 }
 
-const VARIANTS: Record<Variant, { bg: string; fg: string; border: string; pressed?: string; ripple: string }> = {
-  primary: { bg: colors.primary, fg: colors.onPrimary, border: colors.primary, pressed: colors.primaryPressed, ripple: '#ffffff33' },
-  secondary: { bg: colors.card, fg: colors.ink, border: colors.line, ripple: '#00000014' },
-  danger: { bg: colors.danger, fg: colors.onPrimary, border: colors.danger, ripple: '#ffffff33' },
-  ghost: { bg: 'transparent', fg: colors.primary, border: 'transparent', ripple: '#00000014' },
+const VARIANTS: Record<Variant, { bg: string; fg: string; pressed?: string; ripple: string }> = {
+  primary: { bg: colors.primary, fg: colors.onPrimary, pressed: colors.primaryPressed, ripple: '#ffffff33' },
+  secondary: { bg: colors.primarySoft, fg: colors.primary, pressed: colors.primarySoftPressed, ripple: '#2563EB1A' },
+  danger: { bg: colors.danger, fg: colors.onPrimary, ripple: '#ffffff33' },
+  ghost: { bg: 'transparent', fg: colors.primary, ripple: '#2563EB14' },
 };
 
 const styles = StyleSheet.create({
   base: {
-    minHeight: HIT,
+    minHeight: 48,
     paddingHorizontal: space.lg,
     borderRadius: radius.md,
-    borderWidth: 1,
     alignItems: 'center',
     justifyContent: 'center',
     overflow: 'hidden',
   },
-  compact: { minHeight: 36, paddingHorizontal: space.md, borderRadius: radius.sm },
-  label: { fontSize: 16, fontWeight: '600' },
+  compact: { minHeight: 34, paddingHorizontal: space.md, borderRadius: radius.sm },
+  inner: { flexDirection: 'row', alignItems: 'center', gap: space.sm },
+  label: { fontSize: 15, fontWeight: '700', letterSpacing: 0.1 },
+  labelCompact: { fontSize: 14, fontWeight: '600' },
   disabled: { opacity: 0.45 },
+  primaryDisabled: { backgroundColor: colors.lineSoft },
 });

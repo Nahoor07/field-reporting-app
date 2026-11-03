@@ -16,10 +16,11 @@ import { composeProblems, remainingSlots, type ComposeProblem } from '../../doma
 import { MAX_DESCRIPTION_LENGTH, MAX_IMAGES } from '../../domain/limits';
 import { checkCameraAccess, choosePhotos, takePhoto, type CameraAccess } from '../../platform/photoSources';
 import { Button } from '../components/Button';
+import { Icon } from '../components/Icon';
 import { fileUri } from '../components/ReportCard';
 import { useDraft, useKeyboardHeight, useOnForeground } from '../hooks';
 import { formatBytes } from '../status';
-import { colors, HIT, radius, space, tones, typography as t } from '../theme';
+import { colors, HIT, radius, shadow, space, tones, typography as t } from '../theme';
 
 interface Props {
   onClose: () => void;
@@ -37,6 +38,7 @@ export function ComposeScreen({ onClose, onSubmitted, topInset, bottomInset }: P
   const [picking, setPicking] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [confirmDiscard, setConfirmDiscard] = useState(false);
+  const [focused, setFocused] = useState(false);
 
   const cameraRef = useRef(camera);
   cameraRef.current = camera;
@@ -142,18 +144,22 @@ export function ComposeScreen({ onClose, onSubmitted, topInset, bottomInset }: P
           multiline
           maxLength={MAX_DESCRIPTION_LENGTH}
           textAlignVertical="top"
-          style={styles.input}
+          onFocus={() => setFocused(true)}
+          onBlur={() => setFocused(false)}
+          style={[styles.input, focused && styles.inputFocused]}
           accessibilityLabel="Description"
         />
         <Text style={[t.tiny, styles.counter]}>
-          {draft.description.length}/{MAX_DESCRIPTION_LENGTH} · draft is kept on this phone as you type
+          Saved on this phone as you type · {draft.description.length}/{MAX_DESCRIPTION_LENGTH}
         </Text>
 
         <View style={styles.photosHeader}>
           <Text style={t.heading}>Photos</Text>
-          <Text style={t.small}>
-            {draft.photos.length + preparing} of {MAX_IMAGES}
-          </Text>
+          <View style={styles.countPill}>
+            <Text style={styles.countText}>
+              {draft.photos.length + preparing} of {MAX_IMAGES}
+            </Text>
+          </View>
         </View>
 
         <View style={styles.grid}>
@@ -185,26 +191,27 @@ export function ComposeScreen({ onClose, onSubmitted, topInset, bottomInset }: P
               </View>
             </View>
           ))}
+          {room > 0 && (
+            <>
+              <AddTile
+                size={tile}
+                icon="camera"
+                label="Camera"
+                onPress={() => add('camera')}
+                disabled={picking || camera === 'blocked'}
+              />
+              <AddTile
+                size={tile}
+                icon="image"
+                label={room < MAX_IMAGES ? `Gallery · ${room}` : 'Gallery'}
+                onPress={() => add('gallery')}
+                disabled={picking}
+              />
+            </>
+          )}
         </View>
 
-        {room > 0 ? (
-          <View style={styles.row}>
-            <Button
-              label="Take photo"
-              variant="secondary"
-              onPress={() => add('camera')}
-              disabled={picking || camera === 'blocked'}
-              style={styles.flex}
-            />
-            <Button
-              label={room < MAX_IMAGES ? `Gallery (up to ${room})` : 'Choose from gallery'}
-              variant="secondary"
-              onPress={() => add('gallery')}
-              disabled={picking}
-              style={styles.flex}
-            />
-          </View>
-        ) : (
+        {room > 0 ? null : (
           <Text style={t.small}>
             {preparing > 0 ? 'All 5 slots are used.' : 'That’s the maximum of 5 photos.'} Remove one to add another.
           </Text>
@@ -246,6 +253,33 @@ export function ComposeScreen({ onClose, onSubmitted, topInset, bottomInset }: P
   );
 }
 
+function AddTile(props: { size: number; icon: 'camera' | 'image'; label: string; onPress: () => void; disabled: boolean }) {
+  return (
+    <Pressable
+      onPress={props.onPress}
+      disabled={props.disabled}
+      accessibilityRole="button"
+      accessibilityLabel={props.icon === 'camera' ? 'Take photo' : 'Choose from gallery'}
+      accessibilityState={{ disabled: props.disabled }}
+      android_ripple={{ color: '#2563EB1A' }}
+      style={({ pressed }) => [
+        styles.tile,
+        styles.addTile,
+        { width: props.size, height: props.size },
+        pressed && styles.addTilePressed,
+        props.disabled && styles.addTileDisabled,
+      ]}
+    >
+      <View style={styles.addIcon}>
+        <Icon name={props.icon} color={colors.primary} />
+      </View>
+      <Text style={styles.addLabel} numberOfLines={1}>
+        {props.label}
+      </Text>
+    </Pressable>
+  );
+}
+
 function describe(problem: ComposeProblem): string {
   switch (problem.kind) {
     case 'no_description':
@@ -271,51 +305,74 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: space.sm,
     minHeight: HIT + 8,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: colors.line,
   },
-  headerTitle: { fontSize: 17, fontWeight: '700', color: colors.ink },
+  headerTitle: { fontSize: 16, fontWeight: '700', color: colors.ink },
   headerSpacer: { width: 80 },
   content: { padding: space.lg, gap: space.md, paddingBottom: space.xxl },
   input: {
-    minHeight: 120,
+    minHeight: 116,
     maxHeight: 220,
     backgroundColor: colors.card,
-    borderWidth: 1,
-    borderColor: colors.line,
-    borderRadius: radius.md,
-    padding: space.md,
-    fontSize: 16,
+    borderWidth: 1.5,
+    borderColor: 'transparent',
+    borderRadius: radius.lg,
+    padding: space.lg,
+    fontSize: 15,
+    lineHeight: 21,
     color: colors.ink,
+    ...shadow.card,
   },
-  counter: { marginTop: -space.sm, textAlign: 'right' },
-  photosHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline', marginTop: space.sm },
+  inputFocused: { borderColor: colors.primary },
+  counter: { marginTop: -space.xs, paddingHorizontal: space.xs },
+  photosHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: space.md },
+  countPill: { backgroundColor: colors.primarySoft, borderRadius: 999, paddingHorizontal: 10, paddingVertical: 3 },
+  countText: { color: colors.primary, fontSize: 12, fontWeight: '700' },
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: space.sm },
   tile: { borderRadius: radius.md, overflow: 'hidden', backgroundColor: colors.lineSoft },
   tileImage: { width: '100%', height: '100%' },
+  addTile: {
+    backgroundColor: colors.card,
+    borderWidth: 1.5,
+    borderStyle: 'dashed',
+    borderColor: '#BFD3FB',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: space.sm,
+  },
+  addTilePressed: { backgroundColor: colors.primarySoft },
+  addTileDisabled: { opacity: 0.45 },
+  addIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: colors.primarySoft,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  addLabel: { fontSize: 13, fontWeight: '700', color: colors.primary },
   dim: { opacity: 0.5 },
   badge: {
     position: 'absolute',
     left: 6,
     bottom: 6,
-    backgroundColor: '#000000AA',
-    borderRadius: 6,
-    paddingHorizontal: 6,
+    backgroundColor: '#0F172ACC',
+    borderRadius: 999,
+    paddingHorizontal: 8,
     paddingVertical: 2,
   },
   badgeText: { color: '#fff', fontSize: 11, fontWeight: '600' },
   remove: {
     position: 'absolute',
-    top: 4,
-    right: 4,
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: '#000000AA',
+    top: 6,
+    right: 6,
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: '#0F172ACC',
     alignItems: 'center',
     justifyContent: 'center',
   },
-  removeText: { color: '#fff', fontSize: 14, fontWeight: '700' },
+  removeText: { color: '#fff', fontSize: 13, fontWeight: '700' },
   preparing: { ...StyleSheet.absoluteFill, alignItems: 'center', justifyContent: 'center', gap: 4 },
   preparingText: { color: '#fff', fontSize: 12, fontWeight: '700' },
   row: { flexDirection: 'row', gap: space.sm },
@@ -328,10 +385,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: space.lg,
     paddingTop: space.md,
     gap: space.sm,
-    backgroundColor: colors.paper,
-    borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: colors.line,
+    backgroundColor: colors.card,
+    borderTopLeftRadius: radius.lg,
+    borderTopRightRadius: radius.lg,
+    ...shadow.bar,
   },
-  problems: { textAlign: 'center' },
+  problems: { textAlign: 'center', fontSize: 12 },
   footnote: { textAlign: 'center' },
 });

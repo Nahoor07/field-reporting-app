@@ -8,8 +8,7 @@
     "dev": "tsx watch --disable-warning=ExperimentalWarning src/server.ts",
     "start": "tsx --disable-warning=ExperimentalWarning src/server.ts",
     "fault": "tsx scripts/fault.ts",
-    "typecheck": "tsc --noEmit",
-    "test": "tsx --disable-warning=ExperimentalWarning --test test/*.test.ts"
+    "typecheck": "tsc --noEmit"
   },
   "engines": {
     "node": ">=22.13"

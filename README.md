@@ -51,7 +51,9 @@ npm run fault -- stats                  # how many reports/images the server hol
 npm run fault -- wipe                   # delete everything on the server
 ```
 
-Airplane mode on the phone covers "no network at all".
+One-shot presets (`drop-twice`, `lose-*`, `hang`, `503`, `down`, `refuse`) keep the current
+network profile, so `2g` followed by `drop-twice` gives a slow link that also drops twice.
+`clear` resets both. Airplane mode on the phone covers "no network at all".
 
 ---
 

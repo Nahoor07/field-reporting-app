@@ -293,7 +293,7 @@ export function buildApp({ dataDir, log = false }: AppOptions): App {
   app.post<{ Params: { name: string } }>('/__faults/preset/:name', async (request, reply) => {
     const preset = PRESETS[request.params.name];
     if (!preset) return reply.code(404).send({ error: 'unknown_preset', message: `Try one of: ${Object.keys(PRESETS).join(', ')}` });
-    faults.set(preset.config);
+    faults.set({ network: preset.config.network ?? faults.get().network, rules: preset.config.rules });
     if (log) console.log(`${stamp()} faults → ${request.params.name}: ${preset.description}`);
     return { config: faults.get() };
   });
